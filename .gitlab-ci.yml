@@ -1,0 +1,16 @@
+stages:
+  - deploy
+
+deploy_bercapps:
+  stage: deploy
+  tags:
+    - production
+    - deploy
+  only:
+    - main
+  script:
+    - echo "Deploy Berca Apps to Production"
+    - rsync -rvc --omit-dir-times --ignore-missing-args --no-perms --no-owner --no-group  --exclude=".git/" ./ /var/www/repository/bercapps/
+    - cd /var/www/repository/bercapps
+    - php artisan optimize:clear
+    - echo "Deploy finished"

@@ -1,0 +1,37 @@
+# mail cron
+php artisan queue:work database
+
+# custom command execute once
+php artisan event:update-status
+php artisan schedule:work
+
+#  run all scheduler
+php artisan schedule:run
+
+# queue
+php artisan queue:restart
+php artisan queue:flush
+php artisan queue:clear
+
+# specific migration & seed
+php artisan migrate:rollback --path=database/migrations/trading/2024_10_17_095428_create_users_table.php --database=trading
+php artisan migrate --path=database/migrations/trading/2024_10_17_095428_create_users_table.php --database=trading
+# after rollback & migrate open database and go to migrations table, change batch back to 1
+
+php artisan db:seed --class="Database\\Seeders\\Default\\UserSeeder"
+
+# migrate all specific connection
+php artisan migrate:fresh \
+  --database=trading \
+  --path=database/migrations/trading
+
+# seeder specific
+php artisan db:seed \
+  --database=trading \
+  --class=Database\\Seeders\\DefaultDatabaseSeeder
+
+# After migrating change the field batch in "migrations" table back to 1
+
+php artisan tinker
+>>> Schema::connection('promotion')->dropIfExists('trn_event');
+>>> exit

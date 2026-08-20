@@ -1,0 +1,70 @@
+ // $dataHas = TransactionUnit::select(
+        //     'ser_no',
+        //     'prd_no',
+        //     'dep',
+        //     'org_po_no',
+        //     'org_cs_no'
+        // )
+        //     ->with('enginePopulation')
+        //     ->where('stat', 'RCV')
+        //     ->has('enginePopulation')->count();
+
+        // $countData = TransactionUnit::where('stat', 'RCV')->count();
+        // $dataNotHas = TransactionUnit::select(
+        //     'ser_no',
+        //     'prd_no',
+        //     'dep',
+        //     'org_po_no',
+        //     'org_cs_no'
+        // )->with('enginePopulation')
+        //     ->where('stat', 'RCV')
+        //     ->doesntHave('enginePopulation')->count();
+        $engine1 = EnginePopulation::select('serno', 'prdno', 'deldat', 'cusno')->doesntHave('transactionUnit')->orderBy('deldat', 'desc')->count();
+        return $engine1;
+        // $engine2 = EnginePopulation::select('serno', 'prdno')->with('transactionUnit2')->doesntHave('transactionUnit2')->get();
+        return [
+            'real' => $countData,
+            'punya engpop' => $dataHas,
+            'ga punya engpop' => $dataNotHas,
+        ];
+
+        
+        $data = EnginePopulation::select(
+            'trn_engine_population.id as no',
+            'trn_engine_population.serno',
+            'trn_engine_population.prdno'
+        )->join('trn_unit', function ($join) {
+            $join->on('trn_unit.Ser-No', '=', 'trn_engine_population.serno');
+        })
+            ->with('transactionUnit')  // Still eager load if needed
+            ->groupBy('trn_engine_population.id', 'trn_engine_population.serno', 'trn_engine_population.prdno')
+            ->havingRaw('COUNT(trn_unit.id) > 2')
+            ->take(25)
+            ->get();
+        return $data;
+
+
+
+        
+        $data = TransactionUnit::select('Ser-No', 'Prd-No', 'Dep', 'Org-Po-No', 'Org-Cs-No')
+            ->where('Org-Cs-No', '')->orWhere('Org-Cs-No', null)->count();
+        return $data;
+
+        // $data = EnginePopulation::select('serno', 'prdno')->with('transactionUnit:id,Ser-No,Prd-No')->whereHas('transactionUnit', function ($query) {
+        //     $query->where('Ser-No', '!=', null);
+        // });
+        // return $data->paginate(100);
+
+        $data = EnginePopulation::take(10)->with([
+            'customer',
+            'branch',
+            'agency',
+            'transactionUnit.unit.category',
+            'contract.sales',
+            'contract.businessType',
+            'contract.billing.detail',
+        ])->whereHas('contract')
+            ->orderBy('deldat', 'desc')
+            ->get();
+
+        return $data;
